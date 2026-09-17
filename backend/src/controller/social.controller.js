@@ -84,17 +84,7 @@ const disconnect = async (req, res) => {
     }
 };
 
-// ---------- shared OAuth pattern for LinkedIn / X / Instagram ----------
-//
-// Step 1 (<platform>Connect): the logged-in frontend calls this with its
-// normal Authorization header to get a consent-screen URL, then navigates
-// the browser there itself.
-//
-// Step 2 (<platform>Callback): the platform redirects the browser straight
-// to this URL after consent — a plain top-level GET, no Authorization
-// header possible. We recover which user this is for (and, for X, the
-// PKCE code_verifier) from `state`, a short-lived JWT we minted ourselves
-// in step 1 and handed to the platform to bounce back unchanged.
+
 
 const frontendUrl = () => process.env.FRONTEND_URL || "http://localhost:5500/frontend/index.html";
 

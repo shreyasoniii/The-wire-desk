@@ -9,11 +9,7 @@ router.post("/connect", protect, socialController.connect);
 router.get("/", protect, socialController.getAll);
 router.delete("/:id", protect, socialController.disconnect);
 
-// Real OAuth flows. The "connect" step needs the logged-in user (normal
-// Authorization header), but the "callback" step is a plain top-level GET
-// the platform redirects the browser to itself — it can't carry our auth
-// header, so it must stay public. Identity is recovered from the signed
-// `state` param instead (see social.controller.js).
+
 router.get("/linkedin/connect", protect, socialController.linkedinConnect);
 router.get("/linkedin/callback", socialController.linkedinCallback);
 

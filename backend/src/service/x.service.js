@@ -1,16 +1,4 @@
-// Real X (Twitter) OAuth 2.0 (Authorization Code + PKCE) + posting
-// integration.
-//
-// Requires an X Developer app (developer.x.com) with OAuth 2.0 enabled and
-// these set in .env:
-//   X_CLIENT_ID
-//   X_CLIENT_SECRET
-//   X_REDIRECT_URI   (must exactly match a callback URL registered on the
-//                      app, e.g. http://localhost:5050/api/social/x/callback)
-//
-// NOTE: X's write-access tier and exact API pricing/limits have changed
-// more than once — check developer.x.com/en/portal for your app's current
-// access level if posting fails with a 403.
+
 
 const crypto = require("crypto");
 
@@ -24,10 +12,6 @@ const SCOPES = ["tweet.read", "tweet.write", "users.read", "offline.access"];
 const base64url = (buf) =>
     buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
-// PKCE: a fresh verifier/challenge pair per connect attempt. The verifier
-// travels inside the signed `state` we hand X (see social.controller.js)
-// so we don't need any server-side session storage between the
-// authorize step and the callback.
 const generatePkce = () => {
     const codeVerifier = base64url(crypto.randomBytes(32));
     const codeChallenge = base64url(crypto.createHash("sha256").update(codeVerifier).digest());

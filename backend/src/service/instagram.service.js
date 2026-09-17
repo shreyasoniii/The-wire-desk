@@ -1,26 +1,3 @@
-// Real Instagram OAuth + posting integration, via the Facebook/Meta Graph
-// API (Instagram's own API doesn't do OAuth directly — publishing routes
-// through a Facebook Page that has an Instagram Business or Creator
-// account linked to it).
-//
-// Requires a Meta developer app (developers.facebook.com) with the
-// Instagram Graph API product added, and these set in .env:
-//   FB_APP_ID
-//   FB_APP_SECRET
-//   FB_REDIRECT_URI   (must exactly match a valid OAuth redirect URI
-//                      registered on the app, e.g.
-//                      http://localhost:5050/api/social/instagram/callback)
-//
-// IMPORTANT LIMITATION: Instagram's API cannot publish a text-only post —
-// every feed post needs an image or video (image_url/video_url pointing
-// at a publicly reachable file). publishPost() below throws a clear error
-// if no imageUrl is given, since this app doesn't yet have image
-// generation/hosting wired up. Connecting an account still works fully;
-// only the actual "publish" step is blocked without an image.
-//
-// Also: Meta requires apps to go through App Review before most of this
-// works for any user other than the app's own developers/testers — until
-// then, only accounts added as testers in the Meta dashboard can connect.
 
 const FB_VERSION = "v21.0";
 const FB_AUTH_URL = `https://www.facebook.com/${FB_VERSION}/dialog/oauth`;

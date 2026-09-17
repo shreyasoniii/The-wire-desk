@@ -25,9 +25,7 @@ const socialSchema = new mongoose.Schema(
             required: true
         },
 
-        // Encrypted at rest (AES-256-GCM) via the set/get transforms below.
-        // The rest of the app just reads/writes account.accessToken as a
-        // plain string — encryption is transparent.
+        
         accessToken: {
             type: String,
             required: true,

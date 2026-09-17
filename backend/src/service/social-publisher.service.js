@@ -5,12 +5,6 @@ const instagramService = require("./instagram.service");
 
 const REFRESH_MARGIN_MS = 5 * 60 * 1000; // refresh if expiring within 5 minutes
 
-// X supports refresh tokens (offline.access scope); LinkedIn's refresh
-// tokens require a separate approved product we can't assume every app
-// has, and Instagram uses long-lived Page tokens rather than a refresh
-// flow. If a token that can't be refreshed here has actually expired,
-// the publish call below will fail with a clear auth error telling the
-// user to reconnect that bureau.
 const ensureFreshAccessToken = async (account) => {
     if (account.platform !== "X") return account.accessToken;
     if (!account.expiresAt || !account.refreshToken) return account.accessToken;

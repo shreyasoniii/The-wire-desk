@@ -1,20 +1,3 @@
-// Real LinkedIn OAuth + posting integration.
-//
-// Requires a LinkedIn Developer app (developer.linkedin.com) with the
-// "Sign In with LinkedIn using OpenID Connect" AND "Share on LinkedIn"
-// products added, and these set in .env:
-//   LINKEDIN_CLIENT_ID
-//   LINKEDIN_CLIENT_SECRET
-//   LINKEDIN_REDIRECT_URI   (must exactly match a redirect URL registered
-//                            on the LinkedIn app, e.g.
-//                            http://localhost:5050/api/social/linkedin/callback)
-//
-// NOTE: LinkedIn's API surface changes over time (endpoint paths, required
-// headers/versions, scope names). This targets the widely-documented
-// /v2/ugcPosts flow as of early 2026 — if LinkedIn has since deprecated or
-// versioned it, check https://learn.microsoft.com/en-us/linkedin/ for the
-// current posts API and adjust LINKEDIN_UGC_POSTS_URL / the request body
-// accordingly.
 
 const LINKEDIN_AUTH_URL = "https://www.linkedin.com/oauth/v2/authorization";
 const LINKEDIN_TOKEN_URL = "https://www.linkedin.com/oauth/v2/accessToken";

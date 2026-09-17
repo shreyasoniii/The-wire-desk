@@ -10,6 +10,7 @@ const postRoute = require("./route/post.route");
 const socialRoute = require("./route/social.route");
 
 const app = express();
+app.set("trust proxy", 1);
 
 // Security
 app.use(helmet());

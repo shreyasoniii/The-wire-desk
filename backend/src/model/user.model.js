@@ -24,10 +24,6 @@ const userSchema = new mongoose.Schema(
             trim: true
         },
 
-        // AI generation credits. Decremented by 1 each time the AI is
-        // actually called (ai.controller / scheduler.service). When this
-        // hits 0, callers fall back to template-based content instead of
-        // failing the request.
         credits: {
             type: Number,
             default: DEFAULT_MONTHLY_CREDITS

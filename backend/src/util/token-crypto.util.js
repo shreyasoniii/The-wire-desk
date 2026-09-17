@@ -1,11 +1,4 @@
-// Encrypts/decrypts social account tokens before they touch the database,
-// using AES-256-GCM with a key from TOKEN_ENCRYPTION_KEY (a 64-char hex
-// string = 32 bytes). Generate one with:
-//   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-//
-// Wired in as mongoose set/get transforms on the Social model's token
-// fields, so the rest of the app just reads/writes plain strings and never
-// has to think about encryption directly.
+
 
 const crypto = require("crypto");
 

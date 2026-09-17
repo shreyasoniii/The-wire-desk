@@ -3,16 +3,9 @@ const userService = require("./user.service");
 const aiService = require("./ai.service");
 const socialPublisher = require("./social-publisher.service");
 
-const CHECK_INTERVAL_MS = 60 * 1000; // check for due posts once a minute
+const CHECK_INTERVAL_MS = 60 * 1000; 
 
-// Publishes every scheduled post whose scheduledAt has passed.
-//
-// If a post has autoRegenerate set, we try to get fresh AI content for it
-// right before publishing. That's the AI-credit-exhaustion case the rest
-// of the app cares about: if the user is out of credits at that moment, we
-// don't skip the post or leave it stuck — we publish it with fallback
-// (non-AI, template-based) content instead, and mark it so the UI can flag
-// it for the user to review afterwards.
+
 const publishDuePosts = async () => {
     let due;
 
