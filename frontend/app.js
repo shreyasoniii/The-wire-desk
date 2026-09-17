@@ -1,8 +1,7 @@
 // The Wire Desk — frontend logic. No build step, no framework: talks to the
 // Express API directly with fetch. Change API_BASE if the backend isn't on
 // the default local port.
-const API_BASE = "the-wire-desk-production-ff79.up.railway.app/api";
-
+const API_BASE =  "https://the-wire-desk-production-ff79.up.railway.app/api";
 const state = {
   token: localStorage.getItem("wd_token") || null,
   user: JSON.parse(localStorage.getItem("wd_user") || "null"),
