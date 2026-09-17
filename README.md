@@ -1,119 +1,657 @@
-# The Wire Desk — AI Social Media Automation
+# The Wire Desk
 
-A full-stack app for AI-drafted social posts with scheduling and an
-AI-credit system. Retro "newspaper wire desk" UI, no build step on the
-frontend.
+**AI-Powered Social Media Automation Platform**
 
-## Stack
-- **Backend:** Node.js / Express / MongoDB (Mongoose) / JWT auth / OpenAI
-- **Frontend:** plain HTML/CSS/JS (no framework, no build step)
+The Wire Desk is a full-stack social media automation platform for drafting, managing, scheduling, and publishing social media content with AI assistance.
 
-## Setup
+It combines an AI-powered content generation system with scheduled publishing, social account integrations, and a credit-based AI usage model. The frontend uses a retro newspaper-inspired "wire desk" interface and requires no frontend build step.
+
+---
+
+## Features
+
+* AI-assisted social media post generation
+* Generate multiple post variations from a single prompt
+* Monthly AI credit allowance per user
+* Automatic credit refill
+* Template-based fallback when AI credits are exhausted
+* Automatic credit refund when AI generation fails
+* Draft post management
+* Post editing and deletion
+* Scheduled publishing
+* Optional automatic AI regeneration before publishing
+* LinkedIn OAuth integration
+* X (Twitter) OAuth 2.0 with PKCE
+* Instagram/Facebook OAuth integration
+* Real platform publishing
+* JWT-based authentication
+* Encrypted storage of social platform tokens
+* Graceful handling of unavailable third-party integrations
+* Static frontend with no build pipeline
+
+---
+
+## Technology Stack
+
+### Backend
+
+* **Node.js**
+* **Express.js**
+* **MongoDB**
+* **Mongoose**
+* **JWT Authentication**
+* **OpenAI API**
+
+### Frontend
+
+* **HTML5**
+* **CSS3**
+* **Vanilla JavaScript**
+* No framework
+* No build step
+
+### External Integrations
+
+* LinkedIn API
+* X API
+* Meta / Instagram Graph API
+* OpenAI API
+
+---
+
+## Project Structure
+
+```text
+the-wire-desk/
+│
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   ├── .env.example
+│   ├── package.json
+│   └── server.js
+│
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   ├── styles.css
+│   └── ...
+│
+├── .gitignore
+└── README.md
+```
+
+> The exact directory structure may vary depending on the current implementation.
+
+---
+
+# Getting Started
+
+## Prerequisites
+
+Before running the application, install:
+
+* Node.js 18+
+* npm
+* MongoDB
+* Git
+
+For AI generation:
+
+* OpenAI API credentials
+
+For social publishing:
+
+* Developer credentials for the required social platform(s)
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+cd the-wire-desk
+```
+
+Install backend dependencies:
 
 ```bash
 cd backend
 npm install
-cp .env.example .env   # then fill in MONGO_URI, open_ai, JWT_SECRET
-npm run dev             # or: npm start
 ```
 
-The frontend is static — just open `frontend/index.html` in a browser,
-or serve the folder with any static file server. It talks to the API at
-`http://localhost:5050/api` (change `API_BASE` at the top of
-`frontend/app.js` if your backend runs elsewhere).
+Create the environment file:
 
-**Important:** the `.env` values that shipped with the original upload
-(Mongo password, OpenAI key, JWT secret) were exposed in this project
-and should be treated as compromised — rotate all three before using
-this in anything real.
+```bash
+cp .env.example .env
+```
 
-## AI credits & the "no credit" case
+Configure the required environment variables in `.env`.
 
-Every user gets `monthlyCreditAllowance` AI credits (default 20),
-tracked as `credits` on the User document, refilling automatically once
-a calendar month has passed since the last refill.
+Start the development server:
 
-- Every AI generation (`POST /api/ai/generate`, or the scheduler
-  regenerating a post) spends 1 credit up front.
-- **If the user has 0 credits**, the AI is never called — the request
-  still succeeds, but returns **template-based fallback content**
-  instead, with `usedFallback: true` in the response so the UI can flag
-  it (see the "NO CREDIT — FALLBACK COPY" banner and the "FALLBACK"
-  stamp on saved posts).
-- If a credit was spent but the OpenAI call itself then fails (bad key,
-  provider outage, etc.), the credit is refunded and the same fallback
-  content is used instead — so a flaky AI provider never fails the
-  request or silently drops a scheduled post.
-- The background scheduler (`scheduler.service.js`, polls every 60s)
-  applies the same logic when auto-regenerating scheduled posts: a
-  post is **always published** at its scheduled time, with AI content
-  if credits/AI are available, and fallback content if not.
+```bash
+npm run dev
+```
 
-Check current balance: `GET /api/users/credits`.
+Or start the production server:
 
-## API overview
+```bash
+npm start
+```
 
-All routes are prefixed with `/api`. Protected routes require
-`Authorization: Bearer <token>`.
+The API runs by default at:
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | /users/register | – | Create account |
-| POST | /users/login | – | Log in |
-| GET | /users/profile | ✓ | Get profile |
-| PUT | /users/profile | ✓ | Update profile |
-| GET | /users/credits | ✓ | Current AI credit balance |
-| POST | /ai/generate | ✓ | Generate 3 posts (AI or fallback) |
-| GET | /posts | ✓ | List your posts |
-| POST | /posts | ✓ | Save a post (draft) |
-| GET | /posts/:id | ✓ | Get one post |
-| PUT | /posts/:id | ✓ | Edit a post |
-| DELETE | /posts/:id | ✓ | Delete a post |
-| POST | /posts/:id/schedule | ✓ | Schedule (`scheduledAt`, `autoRegenerate`) |
-| POST | /posts/:id/publish | ✓ | Publish immediately (`mediaUrl` optional override) |
-| POST | /social/connect | ✓ | Manual/advanced: paste in a token yourself |
-| GET | /social | ✓ | List connected accounts |
-| DELETE | /social/:id | ✓ | Disconnect an account |
-| GET | /social/linkedin/connect | ✓ | Get a LinkedIn OAuth consent URL |
-| GET | /social/linkedin/callback | – | LinkedIn redirects here after consent |
-| GET | /social/x/connect | ✓ | Get an X OAuth (PKCE) consent URL |
-| GET | /social/x/callback | – | X redirects here after consent |
-| GET | /social/instagram/connect | ✓ | Get a Facebook/Instagram consent URL |
-| GET | /social/instagram/callback | – | Facebook redirects here after consent |
+```text
+http://localhost:5050
+```
 
-## Real platform publishing (Bureaus)
+API base URL:
 
-"Publish now" and scheduled auto-publish both try to actually post to the
-connected account for that post's platform, not just mark it published
-in-app. Each platform needs its own developer app, created by you:
+```text
+http://localhost:5050/api
+```
 
-**LinkedIn** — developer.linkedin.com, with the "Sign In with LinkedIn
-using OpenID Connect" and "Share on LinkedIn" products added. Set
-`LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `LINKEDIN_REDIRECT_URI`.
+---
 
-**X (Twitter)** — developer.x.com, OAuth 2.0 enabled on the app, with
-`tweet.read tweet.write users.read offline.access` scopes. Set
-`X_CLIENT_ID`, `X_CLIENT_SECRET`, `X_REDIRECT_URI`. X's write-access
-tiers/pricing have shifted over time — check your app's current access
-level if posting fails with a 403.
+# Environment Configuration
 
-**Instagram** — developers.facebook.com, with the Instagram Graph API
-product added. Your Instagram account must be a Business/Creator account
-linked to a Facebook Page you manage, and Meta requires App Review before
-this works for anyone besides your own app's testers. Set `FB_APP_ID`,
-`FB_APP_SECRET`, `FB_REDIRECT_URI`.
-**Important:** Instagram's API cannot publish text-only posts — every
-post needs an image/video URL (`mediaUrl` on the post). Connecting an
-Instagram account always works; publishing without a `mediaUrl` will
-fail with a clear error telling you to add one.
+Create `backend/.env` from `.env.example`.
 
-All three: also set `FRONTEND_URL` (so the OAuth callback can redirect
-the browser back to your running frontend) and `TOKEN_ENCRYPTION_KEY`
-(encrypts stored tokens at rest — generate with
-`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`).
+Example:
 
-If a platform isn't configured, or a post's platform has no connected
-account, publishing still succeeds in-app but is flagged
-(`postedToRealPlatform: false`, `externalPostError: "..."`) rather than
-failing the request — same philosophy as the AI credit fallback: an
-unavailable integration should never silently block a scheduled post.
+```env
+PORT=5050
+
+MONGO_URI=your_mongodb_connection_string
+
+JWT_SECRET=your_jwt_secret
+
+OPENAI_API_KEY=your_openai_api_key
+
+FRONTEND_URL=http://localhost:5500
+
+TOKEN_ENCRYPTION_KEY=your_64_character_hex_key
+```
+
+### Social Platform Configuration
+
+#### LinkedIn
+
+```env
+LINKEDIN_CLIENT_ID=
+LINKEDIN_CLIENT_SECRET=
+LINKEDIN_REDIRECT_URI=
+```
+
+#### X
+
+```env
+X_CLIENT_ID=
+X_CLIENT_SECRET=
+X_REDIRECT_URI=
+```
+
+#### Meta / Instagram
+
+```env
+FB_APP_ID=
+FB_APP_SECRET=
+FB_REDIRECT_URI=
+```
+
+### Token Encryption Key
+
+Generate a secure encryption key with:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Store the generated value in:
+
+```env
+TOKEN_ENCRYPTION_KEY=
+```
+
+Never commit `.env` or production secrets to source control.
+
+---
+
+# Frontend
+
+The frontend is a static application and does not require a build process.
+
+Open:
+
+```text
+frontend/index.html
+```
+
+directly in a browser, or serve the directory using a static web server.
+
+The frontend communicates with:
+
+```text
+http://localhost:5050/api
+```
+
+To use a different backend URL, update the `API_BASE` configuration in:
+
+```text
+frontend/app.js
+```
+
+For production, configure the frontend to use the deployed API URL.
+
+---
+
+# Authentication
+
+Protected API endpoints use JWT authentication.
+
+Include the token in the request:
+
+```http
+Authorization: Bearer <token>
+```
+
+Authentication flow:
+
+```text
+Register
+   ↓
+Login
+   ↓
+Receive JWT
+   ↓
+Store token
+   ↓
+Send token with protected API requests
+```
+
+---
+
+# AI Credit System
+
+The Wire Desk uses a credit-based system to control AI generation.
+
+Each user receives a configurable monthly allowance.
+
+Default:
+
+```text
+20 AI credits / month
+```
+
+Credits are stored on the user account.
+
+The system automatically refills the user's allowance when the configured monthly refill period has elapsed.
+
+---
+
+## AI Generation Flow
+
+When a user requests AI-generated content:
+
+```text
+AI Generation Request
+        │
+        ▼
+Check Credit Balance
+        │
+        ├── Credits available
+        │       │
+        │       ▼
+        │   Deduct 1 credit
+        │       │
+        │       ▼
+        │   Call OpenAI
+        │       │
+        │       ├── Success → Return AI content
+        │       │
+        │       └── Failure → Refund credit + fallback
+        │
+        └── No credits
+                │
+                ▼
+        Return fallback content
+```
+
+### No-Credit Behavior
+
+When a user has zero credits:
+
+* OpenAI is not called.
+* The request still succeeds.
+* Template-based content is returned.
+* The response contains:
+
+```json
+{
+  "usedFallback": true
+}
+```
+
+The frontend can use this flag to display the fallback state.
+
+---
+
+## AI Provider Failure
+
+If a credit is deducted but the OpenAI request fails:
+
+1. The credit is refunded.
+2. Template-based fallback content is generated.
+3. The request still succeeds.
+4. The user does not lose a credit because of an AI provider failure.
+
+This prevents temporary provider failures from breaking the application workflow.
+
+---
+
+# Scheduled Posts
+
+Posts can be scheduled for automatic publication.
+
+A scheduled post may optionally enable:
+
+```text
+autoRegenerate
+```
+
+When enabled, the scheduler can regenerate the post using the same AI-credit rules used by manual generation.
+
+The scheduler runs periodically in the backend and checks for posts whose scheduled publication time has been reached.
+
+The current scheduler polling interval is:
+
+```text
+60 seconds
+```
+
+---
+
+## Scheduler Behavior
+
+At publication time:
+
+```text
+Scheduled Post
+      │
+      ▼
+Auto-regeneration enabled?
+      │
+      ├── No ──► Publish existing content
+      │
+      └── Yes
+            │
+            ▼
+       Check AI credits
+            │
+            ├── Available → Generate AI content
+            │
+            └── Unavailable → Use fallback
+            │
+            ▼
+          Publish
+```
+
+The scheduler is designed so that unavailable AI services or exhausted credits do not prevent a scheduled post from being published.
+
+---
+
+# Social Media Integrations
+
+The platform supports publishing to external social platforms.
+
+Each platform requires its own developer application and credentials.
+
+---
+
+## LinkedIn
+
+Create an application through LinkedIn's developer platform.
+
+Required products include:
+
+* Sign In with LinkedIn using OpenID Connect
+* Share on LinkedIn
+
+Required environment variables:
+
+```env
+LINKEDIN_CLIENT_ID=
+LINKEDIN_CLIENT_SECRET=
+LINKEDIN_REDIRECT_URI=
+```
+
+OAuth flow:
+
+```text
+Application
+    ↓
+LinkedIn Authorization
+    ↓
+Callback
+    ↓
+Access Token
+    ↓
+Encrypted Storage
+    ↓
+Publishing
+```
+
+---
+
+## X
+
+X uses OAuth 2.0.
+
+Required scopes include:
+
+```text
+tweet.read
+tweet.write
+users.read
+offline.access
+```
+
+Environment variables:
+
+```env
+X_CLIENT_ID=
+X_CLIENT_SECRET=
+X_REDIRECT_URI=
+```
+
+X API access levels and pricing may change. Verify the current access level and write permissions in the X developer console if publishing returns authorization errors.
+
+---
+
+## Instagram
+
+Instagram publishing uses the Meta platform.
+
+The Instagram account must meet Meta's requirements, including being a supported Business or Creator account connected to a Facebook Page.
+
+Environment variables:
+
+```env
+FB_APP_ID=
+FB_APP_SECRET=
+FB_REDIRECT_URI=
+```
+
+### Media Requirement
+
+Instagram's publishing API requires media.
+
+Therefore, text-only posts cannot be published directly to Instagram through this integration.
+
+A post intended for Instagram must include:
+
+```text
+mediaUrl
+```
+
+If media is missing, the application returns an appropriate publishing error instead of silently failing.
+
+Meta may also require App Review and appropriate permissions before an application can be used with accounts outside its development/test environment.
+
+---
+
+# Publishing Behavior
+
+The application distinguishes between:
+
+### In-App Publishing
+
+The post is marked as published within The Wire Desk.
+
+### External Publishing
+
+The application successfully publishes the content to the connected social platform.
+
+If an integration is unavailable, the application does not necessarily fail the entire publishing request.
+
+Instead, the post can be marked with:
+
+```json
+{
+  "postedToRealPlatform": false,
+  "externalPostError": "..."
+}
+```
+
+This allows scheduled workflows to complete while clearly exposing external publishing failures.
+
+---
+
+# API Reference
+
+All API routes are prefixed with:
+
+```text
+/api
+```
+
+Protected routes require:
+
+```http
+Authorization: Bearer <token>
+```
+
+---
+
+## Authentication
+
+| Method | Endpoint          | Authentication | Description                         |
+| ------ | ----------------- | -------------- | ----------------------------------- |
+| POST   | `/users/register` | No             | Create a user account               |
+| POST   | `/users/login`    | No             | Authenticate a user                 |
+| GET    | `/users/profile`  | Yes            | Retrieve the current user's profile |
+| PUT    | `/users/profile`  | Yes            | Update the current user's profile   |
+| GET    | `/users/credits`  | Yes            | Retrieve current AI credit balance  |
+
+---
+
+## AI
+
+| Method | Endpoint       | Authentication | Description                 |
+| ------ | -------------- | -------------- | --------------------------- |
+| POST   | `/ai/generate` | Yes            | Generate three social posts |
+
+The endpoint can return AI-generated content or template-based fallback content depending on credit availability and AI provider status.
+
+---
+
+## Posts
+
+| Method | Endpoint              | Authentication | Description              |
+| ------ | --------------------- | -------------- | ------------------------ |
+| GET    | `/posts`              | Yes            | List the user's posts    |
+| POST   | `/posts`              | Yes            | Create/save a draft      |
+| GET    | `/posts/:id`          | Yes            | Retrieve a specific post |
+| PUT    | `/posts/:id`          | Yes            | Edit a post              |
+| DELETE | `/posts/:id`          | Yes            | Delete a post            |
+| POST   | `/posts/:id/schedule` | Yes            | Schedule a post          |
+| POST   | `/posts/:id/publish`  | Yes            | Publish immediately      |
+
+The publish endpoint may optionally accept:
+
+```text
+mediaUrl
+```
+
+to override or provide media for supported platforms.
+
+---
+
+## Social Accounts
+
+| Method | Endpoint                     | Authentication | Description                 |
+| ------ | ---------------------------- | -------------- | --------------------------- |
+| POST   | `/social/connect`            | Yes            | Manually connect an account |
+| GET    | `/social`                    | Yes            | List connected accounts     |
+| DELETE | `/social/:id`                | Yes            | Disconnect an account       |
+| GET    | `/social/linkedin/connect`   | Yes            | Start LinkedIn OAuth        |
+| GET    | `/social/linkedin/callback`  | No             | LinkedIn OAuth callback     |
+| GET    | `/social/x/connect`          | Yes            | Start X OAuth               |
+| GET    | `/social/x/callback`         | No             | X OAuth callback            |
+| GET    | `/social/instagram/connect`  | Yes            | Start Instagram OAuth       |
+| GET    | `/social/instagram/callback` | No             | Instagram OAuth callback    |
+
+---
+
+# Example API Request
+
+Generate posts:
+
+```http
+POST /api/ai/generate
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+Example request body:
+
+```json
+{
+  "topic": "The future of artificial intelligence",
+  "platform": "linkedin"
+}
+```
+
+A successful response may contain generated posts and credit information.
+
+When fallback content is used:
+
+```json
+{
+  "usedFallback": true
+}
+```
+
+---
+
+# Security
+
+The following security practices should be followed in development and production:
+
+* Never commit `.env` files.
+* Never expose API keys in frontend code.
+* Use strong, randomly generated JWT secrets.
+* Use a unique encryption key for stored social tokens.
+* Rotate credentials immediately if they are exposed.
+* Use HTTPS in production.
+* Restrict OAuth redirect URIs to trusted domains.
+* Validate and sanitize API input.
+* Apply appropriate authentication and authoriz
