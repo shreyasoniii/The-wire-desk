@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Wire Desk — AI Dispatch Automation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Arvo:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-title">
+      <h1>THE WIRE DESK</h1>
+      <p class="tagline">AI social bulletins — filed, scheduled &amp; sent</p>
+    </div>
+    <div id="creditsGauge" class="credits-gauge hidden">
+      <span class="gauge-label">WIRE CREDITS</span>
+      <div class="gauge-bar"><div id="gaugeFill" class="gauge-fill"></div></div>
+      <span id="gaugeText" class="gauge-text">— / —</span>
+    </div>
+    <div id="userBox" class="user-box hidden">
+      <span id="userName"></span>
+      <button id="logoutBtn" class="btn-link">Sign off</button>
+    </div>
+  </div>
+  <div class="masthead-rule"></div>
+</header>
+
+<main id="app">
+
+  <!-- AUTH SCREEN -->
+  <section id="authScreen" class="auth-screen">
+    <div class="ticket auth-ticket">
+      <div class="ticket-perf"></div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">SIGN IN</button>
+        <button class="auth-tab" data-tab="register">REGISTER</button>
+      </div>
+
+      <form id="loginForm" class="auth-form">
+        <label>Email
+          <input type="email" id="loginEmail" required placeholder="you@bureau.com">
+        </label>
+        <label>Password
+          <input type="password" id="loginPassword" required placeholder="••••••••">
+        </label>
+        <p id="loginError" class="form-error hidden"></p>
+        <button type="submit" class="btn-primary">FILE IN</button>
+      </form>
+
+      <form id="registerForm" class="auth-form hidden">
+        <label>Name
+          <input type="text" id="registerName" required placeholder="Your name">
+        </label>
+        <label>Email
+          <input type="email" id="registerEmail" required placeholder="you@bureau.com">
+        </label>
+        <label>Password
+          <input type="password" id="registerPassword" required placeholder="min. 6 characters">
+        </label>
+        <p id="registerError" class="form-error hidden"></p>
+        <button type="submit" class="btn-primary">OPEN ACCOUNT</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="dashboard hidden">
+    <nav class="directory">
+      <p class="directory-label">DIRECTORY</p>
+      <button class="dir-item active" data-panel="compose">Compose</button>
+      <button class="dir-item" data-panel="dispatches">Dispatches</button>
+      <button class="dir-item" data-panel="bureaus">Bureaus</button>
+      <button class="dir-item" data-panel="account">Account</button>
+    </nav>
+
+    <div class="panels">
+
+      <!-- COMPOSE -->
+      <div id="panel-compose" class="panel">
+        <h2 class="panel-title">Compose a Dispatch</h2>
+        <p class="panel-sub">Draft posts with AI. If your wire credits run dry, you'll still get copy — just flagged as fallback so you know to review it.</p>
+
+        <form id="generateForm" class="compose-form">
+          <label>Topic
+            <input type="text" id="genTopic" required placeholder="e.g. our new product launch">
+          </label>
+          <div class="form-row">
+            <label>Platform
+              <select id="genPlatform" required>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Instagram">Instagram</option>
+                <option value="X">X</option>
+              </select>
+            </label>
+            <label>Tone
+              <input type="text" id="genTone" required placeholder="e.g. confident, playful">
+            </label>
+          </div>
+          <label>Audience
+            <input type="text" id="genAudience" required placeholder="e.g. small business owners">
+          </label>
+          <label>Media URL <span class="hint-inline">(required to actually publish to Instagram — its API has no text-only posts)</span>
+            <input type="url" id="genMediaUrl" placeholder="https://... (optional for LinkedIn/X)">
+          </label>
+          <button type="submit" class="btn-primary" id="generateBtn">FILE TO WIRE</button>
+        </form>
+
+        <div id="generateResult" class="generate-result hidden">
+          <div id="fallbackBanner" class="fallback-banner hidden">
+            <span class="stamp stamp-rust">NO CREDIT — FALLBACK COPY</span>
+            <p>Wire credits were at zero, so this was written by the template engine, not AI. Read it over before you save or schedule it.</p>
+          </div>
+          <pre id="generatedText" class="generated-text"></pre>
+          <div class="generate-actions">
+            <label>Save as a dispatch to
+              <input type="text" id="saveContentHint" class="hint" readonly value="edit the text above if needed, then:">
+            </label>
+            <button id="saveDraftBtn" class="btn-secondary">SAVE AS DRAFT</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DISPATCHES -->
+      <div id="panel-dispatches" class="panel hidden">
+        <h2 class="panel-title">Dispatches</h2>
+        <p class="panel-sub">Everything you've saved — drafts, scheduled, and published.</p>
+        <div id="postsList" class="tickets-grid"></div>
+      </div>
+
+      <!-- BUREAUS (connected accounts) -->
+      <div id="panel-bureaus" class="panel hidden">
+        <h2 class="panel-title">Bureaus (Connected Accounts)</h2>
+        <p class="panel-sub">Connect a real account so dispatches actually go out. Each button sends you to that platform's own sign-in — nothing is shared with this app until you approve it there.</p>
+
+        <div class="oauth-connect-row">
+          <button type="button" class="btn-secondary" data-oauth="linkedin">CONNECT LINKEDIN</button>
+          <button type="button" class="btn-secondary" data-oauth="x">CONNECT X</button>
+          <button type="button" class="btn-secondary" data-oauth="instagram">CONNECT INSTAGRAM</button>
+        </div>
+        <p class="panel-sub small">Instagram requires a Business/Creator account linked to a Facebook Page, and every Instagram post needs an image or video — text-only posts aren't supported by Instagram's API.</p>
+
+        <details class="advanced-connect">
+          <summary>Advanced: paste a token manually instead</summary>
+          <p class="panel-sub small">For testing, or a platform without a wired-up OAuth flow above.</p>
+          <form id="connectForm" class="compose-form">
+          <div class="form-row">
+            <label>Platform
+              <select id="socPlatform" required>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Instagram">Instagram</option>
+                <option value="X">X</option>
+              </select>
+            </label>
+            <label>Username
+              <input type="text" id="socUsername" required placeholder="@handle">
+            </label>
+          </div>
+          <div class="form-row">
+            <label>Platform user ID
+              <input type="text" id="socPlatformUserId" required placeholder="from the platform">
+            </label>
+            <label>Access token
+              <input type="text" id="socAccessToken" required placeholder="paste token">
+            </label>
+          </div>
+            <button type="submit" class="btn-primary">CONNECT BUREAU</button>
+          </form>
+        </details>
+
+        <div id="accountsList" class="accounts-list"></div>
+      </div>
+
+      <!-- ACCOUNT -->
+      <div id="panel-account" class="panel hidden">
+        <h2 class="panel-title">Account</h2>
+        <form id="profileForm" class="compose-form">
+          <label>Name
+            <input type="text" id="profileName">
+          </label>
+          <label>Email
+            <input type="email" id="profileEmail">
+          </label>
+          <label>New password <span class="hint-inline">(leave blank to keep current)</span>
+            <input type="password" id="profilePassword">
+          </label>
+          <p id="profileMsg" class="form-msg hidden"></p>
+          <button type="submit" class="btn-primary">SAVE CHANGES</button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- SCHEDULE MODAL -->
+<div id="scheduleModal" class="modal hidden">
+  <div class="modal-card ticket">
+    <div class="ticket-perf"></div>
+    <h3>Schedule Dispatch</h3>
+    <form id="scheduleForm">
+      <label>Send at
+        <input type="datetime-local" id="scheduleAt" required>
+      </label>
+      <label class="checkbox-row">
+        <input type="checkbox" id="scheduleAutoRegen">
+        Regenerate with AI right before sending (falls back to template copy automatically if out of credits)
+      </label>
+      <div class="modal-actions">
+        <button type="button" id="scheduleCancel" class="btn-secondary">CANCEL</button>
+        <button type="submit" class="btn-primary">CONFIRM</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
