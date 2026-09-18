@@ -187,12 +187,30 @@ const xCallback = async (req, res) => {
             return res.redirect(`${frontendUrl()}?x=error&reason=invalid_state`);
         }
         if (decoded.purpose !== "x_oauth") {
-            return res.redirect(`${frontendUrl()}?x=error&reason=invalid_state`);
-        }
+    return res.redirect(`${frontendUrl()}?x=error&reason=invalid_state`);
+}
 
-        const tokenData = await xService.exchangeCodeForToken(code, decoded.codeVerifier);
-        const profile = await xService.getProfile(tokenData.access_token);
+console.log("=================================");
+console.log("X CALLBACK REACHED");
+console.log("Code exists:", !!code);
+console.log("State exists:", !!state);
+console.log("Decoded purpose:", decoded.purpose);
+console.log("User ID exists:", !!decoded.userId);
+console.log("Code verifier exists:", !!decoded.codeVerifier);
+console.log("Calling X token exchange...");
+console.log("=================================");
 
+const tokenData = await xService.exchangeCodeForToken(
+    code,
+    decoded.codeVerifier
+);
+
+console.log("X TOKEN EXCHANGE SUCCESS");
+console.log("Access token exists:", !!tokenData.access_token);
+
+const profile = await xService.getProfile(
+    tokenData.access_token
+);
         const expiresAt = tokenData.expires_in
             ? new Date(Date.now() + tokenData.expires_in * 1000)
             : undefined;
