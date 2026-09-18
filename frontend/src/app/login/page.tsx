@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, FormEvent } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
@@ -11,7 +12,18 @@ import { Logo } from "@/components/layout/Logo";
 type Tab = "signin" | "signup";
 
 export default function LoginPage() {
-  const [tab, setTab] = useState<Tab>("signin");
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<Tab>(() =>
+    searchParams.get("tab") === "signup" ? "signup" : "signin"
+  );
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,7 +55,15 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center bg-surface-muted px-6 py-12">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-white p-8 shadow-sm">
+      <div className="w-full max-w-md">
+        <Link
+          href="/"
+          className="mb-4 inline-block text-sm font-medium text-ink-muted hover:text-ink"
+        >
+          ← Back to home
+        </Link>
+
+        <div className="rounded-2xl border border-border bg-white p-8 shadow-sm">
         <div className="flex flex-col items-center gap-1 text-center">
           <Logo />
           <p className="mt-1 text-sm text-ink-muted">
@@ -173,6 +193,7 @@ export default function LoginPage() {
             </>
           )}
         </p>
+        </div>
       </div>
 
       <p className="mt-6 text-xs text-ink-muted">
