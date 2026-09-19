@@ -4,47 +4,99 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/layout/Logo";
-import { PlatformIcon } from "@/components/ui/PlatformIcon";
 
-const FEATURES = [
+const TICKER_ITEMS = [
+  "DRAFT IN SECONDS",
+  "SCHEDULE IN ADVANCE",
+  "PUBLISH TO LINKEDIN, X & INSTAGRAM",
+  "AI CREDITS THAT NEVER SURPRISE YOU",
+  "SECURE, TOKEN-ENCRYPTED CONNECTIONS",
+];
+
+const SECTIONS = [
   {
-    title: "Draft with AI, on a budget",
-    body: "Generate three on-brand variants from a topic, tone and audience — then edit freely. Every generation uses one AI credit, tracked in real time.",
-    icon: SparkleIcon,
+    label: "SECTION A — DRAFT",
+    title: "One prompt, three angles",
+    body: "Give it a topic, a tone, and an audience. The AI copilot writes three distinct variations so you never start from a blank page.",
   },
   {
-    title: "Publish everywhere, once",
-    body: "Pick LinkedIn, X and Instagram for a post and The Wire Desk creates one tailored copy per platform from a single draft.",
-    icon: BroadcastIcon,
+    label: "SECTION B — SCHEDULE",
+    title: "Set the run date, forget it",
+    body: "Draft now, publish later. Queue posts across every connected platform and let auto-publish carry them out, with an optional AI refresh right before they go live.",
   },
   {
-    title: "Schedule and know what shipped",
-    body: "Queue posts for later with optional auto-regenerate before publish, and see exactly which ones went out — and which didn't.",
-    icon: CalendarIcon,
+    label: "SECTION C — PUBLISH",
+    title: "Every feed, one send",
+    body: "Native connections to LinkedIn, X, and Instagram/Facebook mean a single post can go out everywhere it needs to, formatted for how each platform actually reads.",
   },
+  {
+    label: "SECTION D — CREDITS",
+    title: "Usage you can actually see",
+    body: "A monthly AI credit allowance with a live meter and auto-refill. Run out mid-month and you still get a solid template draft — never an empty box.",
+  },
+];
+
+const STEPS = [
+  {
+    number: "01",
+    title: "Assign the story",
+    body: "Describe the topic, pick your platforms, and set a tone and audience — the brief the AI works from.",
+  },
+  {
+    number: "02",
+    title: "Run the wire",
+    body: "Review three AI-generated variations, edit the one that lands in your own voice, attach media if you need it.",
+  },
+  {
+    number: "03",
+    title: "File it",
+    body: "Publish now or schedule for later. The Wire Desk holds the deadline and hits publish for you.",
+  },
+];
+
+const SECURITY_POINTS = [
+  "JWT-authenticated sessions on every request, not just at sign-in.",
+  "OAuth 2.0 with PKCE for every platform connection — LinkedIn, X, and Instagram/Facebook.",
+  "Access tokens encrypted at rest, never stored or logged in plain text.",
 ];
 
 export default function Home() {
   const { user } = useAuth();
   const ctaHref = user ? "/dashboard" : "/login?tab=signup";
-  const ctaLabel = user ? "Go to Dashboard" : "Create your account";
+  const ctaLabel = user ? "Go to Dashboard" : "Start drafting free";
 
   return (
-    <div className="flex flex-1 flex-col bg-surface-muted">
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-white px-6">
+    <div className="flex flex-1 flex-col bg-white">
+      <MastheadBar />
+
+      <header className="flex h-16 shrink-0 items-center justify-between border-b-2 border-ink bg-white px-6">
         <Logo />
+        <nav className="hidden items-center gap-8 text-sm font-medium text-ink-muted sm:flex">
+          <a href="#sections" className="hover:text-ink">
+            Features
+          </a>
+          <a href="#how-it-works" className="hover:text-ink">
+            How it works
+          </a>
+          <a href="#security" className="hover:text-ink">
+            Security
+          </a>
+        </nav>
         <div className="flex items-center gap-2">
           {user ? (
             <Link href="/dashboard">
-              <Button>Go to Dashboard</Button>
+              <Button className="rounded-md">Go to Dashboard</Button>
             </Link>
           ) : (
             <>
-              <Link href="/login">
-                <Button variant="ghost">Sign in</Button>
+              <Link
+                href="/login"
+                className="px-3 py-2 text-sm font-medium text-ink hover:text-primary-dark"
+              >
+                Log in
               </Link>
               <Link href="/login?tab=signup">
-                <Button>Get started</Button>
+                <Button className="rounded-md">Start free</Button>
               </Link>
             </>
           )}
@@ -52,95 +104,279 @@ export default function Home() {
       </header>
 
       <main className="flex-1">
-        <section className="mx-auto max-w-4xl px-6 py-20 text-center">
-          <span className="inline-flex items-center gap-1 rounded-full bg-primary-light px-3 py-1 text-xs font-semibold text-primary-dark">
-            A newsroom for every feed
-          </span>
-          <h1 className="mt-5 text-4xl font-bold tracking-tight text-ink sm:text-5xl">
-            Run your social feed like a newsroom.
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-ink-muted">
-            Draft with AI, schedule across LinkedIn, X and Instagram, and see what actually
-            went out — all from one wire desk.
-          </p>
+        {/* Hero */}
+        <section className="bg-surface-muted px-6 py-20">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+            <div>
+              <span className="font-mono text-xs font-semibold uppercase tracking-widest text-accent-dark">
+                Dispatch No. 001 — Product launch
+              </span>
+              <h1 className="mt-5 font-serif text-4xl leading-tight text-ink sm:text-5xl">
+                Write it once.
+                <br />
+                Wire it everywhere.
+              </h1>
+              <p className="mt-5 max-w-lg text-base leading-relaxed text-ink-muted">
+                The Wire Desk drafts, schedules, and publishes your posts to LinkedIn, X, and
+                Instagram — with an AI copilot that turns one idea into three ready-to-post
+                variations, on your voice and on your clock.
+              </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link href={ctaHref}>
-              <Button className="px-6 py-3 text-base">{ctaLabel}</Button>
-            </Link>
-            {!user && (
-              <Link href="/login">
-                <Button variant="outline" className="px-6 py-3 text-base">
-                  Sign in
-                </Button>
-              </Link>
-            )}
-          </div>
-
-          <div className="mt-10 flex items-center justify-center gap-3">
-            <PlatformIcon platform="LinkedIn" />
-            <PlatformIcon platform="X" />
-            <PlatformIcon platform="Instagram" />
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-5xl px-6 pb-20">
-          <div className="grid gap-4 sm:grid-cols-3">
-            {FEATURES.map(({ title, body, icon: Icon }) => (
-              <div key={title} className="rounded-xl border border-border bg-white p-6">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-light text-primary-dark">
-                  <Icon />
-                </span>
-                <h3 className="mt-4 font-semibold text-ink">{title}</h3>
-                <p className="mt-1.5 text-sm text-ink-muted">{body}</p>
+              <div className="mt-8 flex flex-wrap items-center gap-6">
+                <Link href={ctaHref}>
+                  <Button className="rounded-md px-5 py-2.5 font-semibold">
+                    {ctaLabel} <span aria-hidden>→</span>
+                  </Button>
+                </Link>
+                <a
+                  href="#how-it-works"
+                  className="text-sm font-medium text-ink underline decoration-border underline-offset-4 hover:decoration-ink"
+                >
+                  See how it works
+                </a>
               </div>
-            ))}
+
+              <p className="mt-6 text-xs text-ink-muted">
+                No credit card required &nbsp;·&nbsp; Free monthly AI credits &nbsp;·&nbsp; Cancel
+                anytime
+              </p>
+            </div>
+
+            <div className="relative mx-auto w-full max-w-sm">
+              <div
+                className="absolute inset-0 translate-x-3 translate-y-3 rounded-xl border border-border bg-white"
+                aria-hidden
+              />
+              <div className="relative rounded-xl border border-border bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[11px] font-semibold uppercase tracking-widest text-ink-muted">
+                    Today&rsquo;s dispatch
+                  </span>
+                  <span className="rounded-full bg-accent-light px-2.5 py-1 text-xs font-semibold text-accent-dark">
+                    14/20 credits
+                  </span>
+                </div>
+
+                <div className="mt-4 flex items-center gap-2">
+                  <span className="inline-flex h-6 w-8 items-center justify-center rounded-md border border-primary bg-primary-light font-mono text-[11px] font-semibold text-primary-dark">
+                    in
+                  </span>
+                  <span className="inline-flex h-6 w-8 items-center justify-center rounded-md border border-border bg-white font-mono text-[11px] font-semibold text-ink">
+                    X
+                  </span>
+                  <span className="inline-flex h-6 w-8 items-center justify-center rounded-md border border-border bg-white font-mono text-[11px] font-semibold text-ink">
+                    Ig
+                  </span>
+                </div>
+
+                <p className="mt-4 text-sm leading-relaxed text-ink">
+                  We just shipped AI credits — one simple meter so your content pipeline never
+                  runs up a surprise bill. Try it from any draft today.
+                </p>
+
+                <hr className="my-4 border-border" />
+
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-accent-light px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-accent-dark">
+                    Scheduled
+                  </span>
+                  <span className="font-mono text-xs text-ink-muted">Sep 19, 9:00 AM</span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="border-t border-border bg-white px-6 py-16">
-          <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
-            <h2 className="text-2xl font-semibold text-ink">Ready to file your first story?</h2>
-            <p className="text-ink-muted">
-              {user
-                ? "Head back to your dashboard to pick up where you left off."
-                : "Sign up free and start with 20 AI credits a month."}
-            </p>
-            <Link href={ctaHref}>
-              <Button className="px-6 py-3 text-base">{ctaLabel}</Button>
-            </Link>
+        <MarqueeStrip />
+
+        {/* Sections / features */}
+        <section id="sections" className="bg-white px-6 py-20">
+          <div className="mx-auto max-w-6xl">
+            <span className="font-mono text-xs font-semibold uppercase tracking-widest text-accent-dark">
+              The sections
+            </span>
+            <h2 className="mt-3 max-w-xl font-serif text-3xl leading-snug text-ink sm:text-4xl">
+              Everything a one-person newsroom needs
+            </h2>
+
+            <div className="mt-12 grid gap-10 sm:grid-cols-2 sm:divide-x sm:divide-border lg:grid-cols-4 lg:gap-0">
+              {SECTIONS.map((section) => (
+                <div key={section.label} className="sm:px-8 sm:first:pl-0">
+                  <span className="font-mono text-[11px] font-semibold uppercase tracking-widest text-ink-muted">
+                    {section.label}
+                  </span>
+                  <h3 className="mt-2 font-semibold text-ink">{section.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-muted">{section.body}</p>
+                </div>
+              ))}
+            </div>
           </div>
+        </section>
+
+        {/* How it works */}
+        <section id="how-it-works" className="bg-surface-muted px-6 py-20">
+          <div className="mx-auto max-w-6xl">
+            <span className="font-mono text-xs font-semibold uppercase tracking-widest text-accent-dark">
+              The dispatch log
+            </span>
+            <h2 className="mt-3 max-w-xl font-serif text-3xl leading-snug text-ink sm:text-4xl">
+              From idea to published, in three moves
+            </h2>
+
+            <div className="mt-12 grid gap-10 sm:grid-cols-3">
+              {STEPS.map((step) => (
+                <div key={step.number}>
+                  <span className="font-serif text-5xl text-primary">{step.number}</span>
+                  <h3 className="mt-3 font-semibold text-ink">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-muted">{step.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Security */}
+        <section id="security" className="bg-white px-6 py-20">
+          <div className="mx-auto max-w-2xl border-t border-ink pt-10 text-center">
+            <span className="font-mono text-xs font-semibold uppercase tracking-widest text-ink-muted">
+              Filed under: security
+            </span>
+            <h2 className="mx-auto mt-3 font-serif text-3xl leading-snug text-ink sm:text-4xl">
+              Built the way a newsroom keeps its sources safe
+            </h2>
+
+            <ul className="mx-auto mt-8 max-w-xl space-y-3 text-left">
+              {SECURITY_POINTS.map((point) => (
+                <li key={point} className="flex gap-3 text-sm leading-relaxed text-ink-muted">
+                  <span className="mt-0.5 shrink-0 font-semibold text-primary">—</span>
+                  {point}
+                </li>
+              ))}
+            </ul>
+
+            <div className="mx-auto mt-10 border-t border-ink" />
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="bg-primary px-6 py-16 text-center">
+          <h2 className="font-serif text-3xl text-white sm:text-4xl">
+            Ready to file today&rsquo;s post?
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-sm text-white/85">
+            Start with your free monthly AI credits — no card, no setup call, no build step on
+            your end.
+          </p>
+          <Link
+            href={ctaHref}
+            className="mt-6 inline-flex items-center justify-center rounded-md bg-white px-5 py-2.5 text-sm font-semibold text-primary-dark transition-colors hover:bg-surface-muted"
+          >
+            {ctaLabel}
+          </Link>
         </section>
       </main>
 
-      <footer className="border-t border-border px-6 py-6 text-center text-xs text-ink-muted">
-        © {new Date().getFullYear()} The Wire Desk · A newsroom for every feed
-      </footer>
+      <Footer />
     </div>
   );
 }
 
-function SparkleIcon() {
+function MastheadBar() {
   return (
-    <svg viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
-      <path d="M10 2l1.6 4.7L16.5 8l-4.9 1.3L10 14l-1.6-4.7L3.5 8l4.9-1.3L10 2z" />
-    </svg>
+    <div className="grid grid-cols-3 items-center bg-ink px-6 py-2 font-mono text-[10px] uppercase tracking-widest text-white/70">
+      <span>Vol. I — No. 001</span>
+      <span className="text-center text-white/90">Your newsroom for every feed</span>
+      <span className="text-right">Established 2026</span>
+    </div>
   );
 }
-function BroadcastIcon() {
+
+function MarqueeStrip() {
   return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-5 w-5">
-      <path d="M4 8.5C8.5 4 11.5 4 16 8.5" strokeLinecap="round" />
-      <path d="M7 12C9.8 9 10.2 9 13 12" strokeLinecap="round" />
-      <circle cx="10" cy="16.5" r="1.6" fill="currentColor" />
-    </svg>
+    <div className="overflow-hidden bg-ink py-3">
+      <div className="flex w-max animate-marquee">
+        {[0, 1].map((rep) => (
+          <ul key={rep} className="flex shrink-0 items-center" aria-hidden={rep === 1}>
+            {TICKER_ITEMS.map((item) => (
+              <li
+                key={item}
+                className="flex items-center whitespace-nowrap px-6 font-mono text-[11px] uppercase tracking-widest text-white/80"
+              >
+                {item}
+                <span className="ml-6 text-white/25">/</span>
+              </li>
+            ))}
+          </ul>
+        ))}
+      </div>
+    </div>
   );
 }
-function CalendarIcon() {
+
+function Footer() {
   return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-5 w-5">
-      <rect x="2.5" y="4" width="15" height="13.5" rx="1.5" />
-      <path d="M2.5 8h15M6 2v3.5M14 2v3.5" strokeLinecap="round" />
-    </svg>
+    <footer className="border-t border-border bg-surface-muted px-6 py-12">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-10 sm:grid-cols-4">
+          <div>
+            <Logo />
+            <p className="mt-2 text-sm text-ink-muted">A newsroom for every feed.</p>
+          </div>
+
+          <FooterColumn
+            title="Product"
+            links={[
+              { label: "Features", href: "#sections" },
+              { label: "How it works", href: "#how-it-works" },
+              { label: "Security", href: "#security" },
+            ]}
+          />
+          <FooterColumn
+            title="Company"
+            links={[
+              { label: "About", href: "/about" },
+              { label: "Contact", href: "/contact" },
+            ]}
+          />
+          <FooterColumn
+            title="Legal"
+            links={[
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms", href: "/terms" },
+            ]}
+          />
+        </div>
+
+        <div className="mt-10 flex flex-col gap-2 border-t border-border pt-6 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between">
+          <span>© {new Date().getFullYear()} The Wire Desk. All dispatches reserved.</span>
+          <span>Built for solo creators &amp; small teams.</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: { label: string; href: string }[];
+}) {
+  return (
+    <div>
+      <span className="font-mono text-xs font-semibold uppercase tracking-widest text-ink-muted">
+        {title}
+      </span>
+      <ul className="mt-3 space-y-2">
+        {links.map((link) => (
+          <li key={link.label}>
+            <Link href={link.href} className="text-sm text-ink-muted hover:text-ink">
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
