@@ -6,20 +6,31 @@ export function CreditMeter({
   allowance: number;
 }) {
   const pct = allowance > 0 ? Math.min(100, (credits / allowance) * 100) : 0;
+  const low = pct <= 25;
+  const segments = 10;
+  const filled = Math.round((pct / 100) * segments);
 
   return (
-    <div className="flex items-center gap-2 rounded-full bg-accent-light px-3 py-1.5 text-accent-dark">
-      <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0">
-        <path d="M10 2l1.6 4.7L16.5 8l-4.9 1.3L10 14l-1.6-4.7L3.5 8l4.9-1.3L10 2z" />
-      </svg>
-      <span className="text-sm font-semibold whitespace-nowrap">
-        {credits}/{allowance} credits
+    <div
+      className="hidden items-center gap-2.5 rounded-[6px] border border-rule-strong/70 bg-card px-2.5 py-1.5 lg:flex"
+      title={`${credits} of ${allowance} AI credits left this cycle`}
+    >
+      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
+        Credits
       </span>
-      <span className="h-1.5 w-14 overflow-hidden rounded-full bg-white/70">
-        <span
-          className="block h-full rounded-full bg-accent"
-          style={{ width: `${pct}%` }}
-        />
+      <span className="flex gap-[2px]" aria-hidden>
+        {Array.from({ length: segments }, (_, i) => (
+          <span
+            key={i}
+            className={`h-3 w-[5px] rounded-[1px] transition-colors ${
+              i < filled ? (low ? "bg-accent" : "bg-primary") : "bg-paper-deep"
+            }`}
+          />
+        ))}
+      </span>
+      <span className="font-mono text-xs font-semibold tabular-nums text-ink">
+        {credits}
+        <span className="text-ink-muted">/{allowance}</span>
       </span>
     </div>
   );
